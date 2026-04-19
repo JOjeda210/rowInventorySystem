@@ -54,13 +54,13 @@
                     </td>
                     <td>
                         <small>
-                            {{ $product->minimum_stock }} / {{ $product->maximum_stock }}
+                            {{ $product->min_stock }} / {{ $product->max_stock ?? '∞' }}
                         </small>
                     </td>
                     <td>
-                        @if($product->current_stock > $product->maximum_stock)
+                        @if($product->max_stock && $product->current_stock > $product->max_stock)
                             <span class="badge bg-warning text-dark">Exceso</span>
-                        @elseif($product->current_stock < $product->minimum_stock)
+                        @elseif($product->min_stock > 0 && $product->current_stock < $product->min_stock)
                             <span class="badge bg-danger">Bajo</span>
                         @elseif($product->current_stock > 0)
                             <span class="badge bg-success">OK</span>

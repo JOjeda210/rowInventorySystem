@@ -73,7 +73,7 @@
                             <td><small>{{ $alert->created_at->format('d/m/Y H:i') }}</small></td>
                             <td>
                                 @if(!$alert->is_read)
-                                <form action="{{ route('alerts.mark-as-read', $alert) }}" method="POST" class="d-inline">
+                                <form action="{{ route('alerts.read', $alert) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-outline-success" title="Marcar como leida">
                                         <i class="bi bi-check"></i>
@@ -124,7 +124,7 @@
                             <td><small>{{ $alert->created_at->format('d/m/Y H:i') }}</small></td>
                             <td>
                                 @if(!$alert->is_read)
-                                <form action="{{ route('alerts.mark-as-read', $alert) }}" method="POST" class="d-inline">
+                                <form action="{{ route('alerts.read', $alert) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-outline-success" title="Marcar como leida">
                                         <i class="bi bi-check"></i>
@@ -170,7 +170,7 @@
                             <td><small>{{ $alert->created_at->format('d/m/Y H:i') }}</small></td>
                             <td>
                                 @if(!$alert->is_read)
-                                <form action="{{ route('alerts.mark-as-read', $alert) }}" method="POST" class="d-inline">
+                                <form action="{{ route('alerts.read', $alert) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-outline-success" title="Marcar como leida">
                                         <i class="bi bi-check"></i>

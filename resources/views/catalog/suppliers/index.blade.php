@@ -25,11 +25,12 @@
         <table class="table simp-datatable">
             <thead>
                 <tr>
+                    <th>Codigo</th>
                     <th>Nombre</th>
                     <th>Contacto</th>
                     <th>Email</th>
                     <th>Telefono</th>
-                    <th>Ciudad</th>
+                    <th>RFC</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -37,21 +38,26 @@
             <tbody>
                 @foreach($suppliers as $supplier)
                 <tr>
+                    <td><code>{{ $supplier->code }}</code></td>
                     <td>
                         <strong>{{ $supplier->name }}</strong>
                     </td>
                     <td>
-                        {{ $supplier->contact_name }}
+                        {{ $supplier->contact ?? '—' }}
                     </td>
                     <td>
+                        @if($supplier->email)
                         <a href="mailto:{{ $supplier->email }}">{{ $supplier->email }}</a>
+                        @else —
+                        @endif
                     </td>
                     <td>
+                        @if($supplier->phone)
                         <a href="tel:{{ $supplier->phone }}">{{ $supplier->phone }}</a>
+                        @else —
+                        @endif
                     </td>
-                    <td>
-                        {{ $supplier->city }}
-                    </td>
+                    <td>{{ $supplier->tax_id ?? '—' }}</td>
                     <td>
                         @if($supplier->is_active)
                             <span class="badge bg-success">Activo</span>

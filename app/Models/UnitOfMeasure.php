@@ -17,7 +17,7 @@ class UnitOfMeasure extends Model
 
     protected $fillable = [
         'name',
-        'symbol',
+        'abbreviation',
     ];
 
     // Relaciones

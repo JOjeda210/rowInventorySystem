@@ -16,6 +16,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name', 100);
             $table->string('code', 20)->unique();
+            $table->text('description')->nullable();
             $table->string('type', 50)->nullable();
             $table->decimal('min_temp', 5, 1)->nullable();
             $table->decimal('max_temp', 5, 1)->nullable();

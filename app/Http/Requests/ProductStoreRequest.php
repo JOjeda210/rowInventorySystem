@@ -23,12 +23,12 @@ class ProductStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['required', 'string', 'max:20', 'unique:products,code'],
+            'code' => ['required', 'string', 'max:20', 'unique:products,code,' . $this->route('product')?->id],
             'name' => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string'],
             'category_id' => ['required', 'string', 'exists:categories,id'],
             'unit_id' => ['required', 'string', 'exists:units_of_measure,id'],
-            'barcode' => ['nullable', 'string', 'max:50', 'unique:products,barcode'],
+            'barcode' => ['nullable', 'string', 'max:50', 'unique:products,barcode,' . $this->route('product')?->id],
             'min_stock' => ['required', 'numeric', 'min:0'],
             'max_stock' => ['nullable', 'numeric', 'gte:min_stock'],
             'location_id' => ['nullable', 'string', 'exists:locations,id'],

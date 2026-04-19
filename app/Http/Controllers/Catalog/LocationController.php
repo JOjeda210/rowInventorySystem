@@ -25,12 +25,13 @@ class LocationController extends Controller
     public function store(): RedirectResponse
     {
         Location::create(request()->validate([
+            'name' => ['required', 'string', 'max:100'],
             'code' => ['required', 'string', 'max:20', 'unique:locations,code'],
-            'description' => ['nullable', 'string', 'max:100'],
+            'description' => ['nullable', 'string', 'max:255'],
             'type' => ['nullable', 'string'],
             'min_temp' => ['nullable', 'numeric'],
             'max_temp' => ['nullable', 'numeric'],
-            'max_capacity' => ['nullable', 'numeric'],
+            'capacity' => ['nullable', 'numeric'],
             'unit_id' => ['nullable', 'string', 'exists:units_of_measure,id'],
             'is_active' => ['sometimes', 'boolean'],
         ]));
@@ -47,12 +48,13 @@ class LocationController extends Controller
     public function update(Location $location): RedirectResponse
     {
         $location->update(request()->validate([
+            'name' => ['required', 'string', 'max:100'],
             'code' => ['required', 'string', 'max:20', 'unique:locations,code,' . $location->id],
-            'description' => ['nullable', 'string', 'max:100'],
+            'description' => ['nullable', 'string', 'max:255'],
             'type' => ['nullable', 'string'],
             'min_temp' => ['nullable', 'numeric'],
             'max_temp' => ['nullable', 'numeric'],
-            'max_capacity' => ['nullable', 'numeric'],
+            'capacity' => ['nullable', 'numeric'],
             'unit_id' => ['nullable', 'string', 'exists:units_of_measure,id'],
             'is_active' => ['sometimes', 'boolean'],
         ]));

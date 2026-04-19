@@ -52,19 +52,21 @@
                         <span class="badge bg-secondary">{{ $receipt->lines->count() }} items</span>
                     </td>
                     <td>
-                        {{ $receipt->lines->sum('quantity') }}
+                        {{ number_format($receipt->lines->sum('received_qty'), 2) }}
                     </td>
                     <td>
-                        @if($receipt->status === 'draft')
-                            <span class="badge bg-warning text-dark">Borrador</span>
-                        @elseif($receipt->status === 'confirmed')
-                            <span class="badge bg-success">Confirmado</span>
+                        @if($receipt->status === 'pending')
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                        @elseif($receipt->status === 'with_discrepancies')
+                            <span class="badge bg-danger">Con discrepancias</span>
+                        @elseif($receipt->status === 'completed')
+                            <span class="badge bg-success">Completado</span>
                         @else
                             <span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $receipt->status)) }}</span>
                         @endif
                     </td>
                     <td>
-                        {{ $receipt->user->name }}
+                        {{ $receipt->receivedBy?->name ?? 'N/A' }}
                     </td>
                     <td>
                         <a href="{{ route('receipts.show', $receipt) }}" class="btn btn-sm btn-outline-info" title="Ver">

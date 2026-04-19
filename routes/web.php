@@ -15,6 +15,13 @@ use App\Http\Controllers\Purchasing\PurchaseOrderController;
 use App\Http\Controllers\Reports\ReportController;
 use Illuminate\Support\Facades\Route;
 
+// Ruta raiz
+Route::get('/', function () {
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
+});
+
 // Rutas publicas (login)
 Route::middleware('guest')->group(function () {
     Route::get('login', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'create'])->name('login');

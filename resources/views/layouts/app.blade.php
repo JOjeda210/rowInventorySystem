@@ -557,18 +557,19 @@
             localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
         });
 
-        // Inicializar DataTables
-        document.querySelectorAll('.simp-datatable').forEach(el => {
-            if (!$.fn.DataTable.isDataTable(el)) {
-                new DataTable(el, {
-                    language: {
-                        url: 'https://cdn.datatables.net/plug-ins/2.3.1/i18n/es-MX.json'
-                    },
-                    pageLength: 25,
-                    responsive: true,
-                    dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>><"row"<"col-sm-12"tr>><"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
-                });
-            }
+        // Inicializar DataTables (DataTables 2.x sin jQuery)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.simp-datatable').forEach(function(el) {
+                if (!DataTable.isDataTable(el)) {
+                    new DataTable(el, {
+                        language: {
+                            url: 'https://cdn.datatables.net/plug-ins/2.3.1/i18n/es-MX.json'
+                        },
+                        pageLength: 25,
+                        responsive: true
+                    });
+                }
+            });
         });
     </script>
 

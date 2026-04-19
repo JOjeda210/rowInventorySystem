@@ -23,7 +23,7 @@ class CategoryStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:100', 'unique:categories,name'],
+            'name' => ['required', 'string', 'max:100', 'unique:categories,name,' . $this->route('category')?->id],
             'description' => ['nullable', 'string'],
             'is_perishable' => ['sometimes', 'boolean'],
         ];

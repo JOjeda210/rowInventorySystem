@@ -93,6 +93,11 @@ class ReceiptController extends Controller
 
     public function confirm(Receipt $receipt): RedirectResponse
     {
+        if (!in_array($receipt->status, ['pending', 'with_discrepancies'])) {
+            return redirect()->route('receipts.show', $receipt)
+                ->with('error', 'Esta recepcion ya fue confirmada o no puede ser confirmada en su estado actual.');
+        }
+
         return DB::transaction(function () use ($receipt) {
             // Para cada linea de la recepcion
             foreach ($receipt->lines as $line) {

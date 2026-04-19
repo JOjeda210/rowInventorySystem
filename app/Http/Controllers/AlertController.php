@@ -13,21 +13,31 @@ class AlertController extends Controller
     {
         $level = request('level');
 
-        $query = Alert::with('product', 'lot');
-
-        if ($level && $level !== 'all') {
-            $query->where('level', $level);
-        }
-
-        $activeAlerts = clone $query;
-        $activeAlerts = $activeAlerts->where('is_read', false)
+        $activeAlerts = Alert::with('product', 'lot')
+            ->where('is_read', false)
+            ->when($level && $level !== 'all', fn($q) => $q->where('level', $level))
             ->orderByRaw("CASE WHEN level = 'critical' THEN 1 WHEN level = 'warning' THEN 2 ELSE 3 END")
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $allAlerts = $query->orderBy('created_at', 'desc')->paginate(50);
+        $criticalAlerts = Alert::with('product', 'lot')
+            ->where('is_read', false)
+            ->where('level', 'critical')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return view('alerts.index', compact('activeAlerts', 'allAlerts', 'level'));
+        $warningAlerts = Alert::with('product', 'lot')
+            ->where('is_read', false)
+            ->where('level', 'warning')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $allAlerts = Alert::with('product', 'lot')
+            ->when($level && $level !== 'all', fn($q) => $q->where('level', $level))
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
+
+        return view('alerts.index', compact('activeAlerts', 'criticalAlerts', 'warningAlerts', 'allAlerts', 'level'));
     }
 
     public function markAsRead(Alert $alert): RedirectResponse
