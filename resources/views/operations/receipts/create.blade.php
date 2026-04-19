@@ -128,8 +128,9 @@
             </div>
 
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-circle"></i> Crear Recepcion
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="spinner-border spinner-border-sm d-none me-1" id="submitSpinner"></span>
+                    <i class="bi bi-check-circle" id="submitIcon"></i> Crear Recepcion
                 </button>
                 <a href="{{ route('receipts.index') }}" class="btn btn-outline-secondary">
                     <i class="bi bi-x-circle"></i> Cancelar
@@ -243,6 +244,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('linesContainer').innerHTML = '<div class="text-center py-4 text-muted"><p>No hay lineas. Agrega la primera haciendo clic en el boton.</p></div>';
             }
         }
+    });
+
+    document.getElementById('receiptForm').addEventListener('submit', function() {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        document.getElementById('submitSpinner').classList.remove('d-none');
+        document.getElementById('submitIcon').classList.add('d-none');
     });
 });
 </script>

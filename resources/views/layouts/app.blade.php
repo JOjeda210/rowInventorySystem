@@ -436,7 +436,7 @@
             <div class="nav-section-title">Monitoreo</div>
             <a href="{{ route('alerts.index') }}" class="nav-link {{ request()->routeIs('alerts.*') ? 'active' : '' }}">
                 <i class="bi bi-bell-fill"></i>
-                <span>Alertas <span class="badge bg-danger" id="alerts-badge" style="display: none;"></span></span>
+                <span>Alertas @if($unreadAlertCount > 0)<span class="badge bg-danger" id="alerts-badge">{{ $unreadAlertCount }}</span>@endif</span>
             </a>
         </div>
 
@@ -477,7 +477,7 @@
             <div class="topbar-right">
                 <a href="{{ route('alerts.index') }}" class="btn-icon" title="Alertas">
                     <i class="bi bi-bell"></i>
-                    <span class="badge bg-danger position-absolute" id="topbar-alerts-badge" style="display: none; top: 5px; right: 5px; font-size: 0.65rem;"></span>
+                    @if($unreadAlertCount > 0)<span class="badge bg-danger position-absolute" id="topbar-alerts-badge" style="top: 5px; right: 5px; font-size: 0.65rem;">{{ $unreadAlertCount }}</span>@endif
                 </a>
                 <div class="dropdown">
                     <button class="btn btn-link dropdown-toggle text-dark" type="button" data-bs-toggle="dropdown">

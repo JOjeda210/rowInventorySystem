@@ -17,14 +17,9 @@
     </div>
     <div class="d-flex gap-2">
         @if(in_array($receipt->status, ['pending', 'with_discrepancies']))
-        <form action="{{ route('receipts.confirm', $receipt) }}" method="POST"
-              onsubmit="return confirm('¿Confirmar esta recepcion? Se crearan los lotes y movimientos correspondientes. Esta accion es irreversible.')">
-            @csrf
-            @method('PATCH')
-            <button type="submit" class="btn btn-success">
-                <i class="bi bi-check-circle"></i> Confirmar Recepcion
-            </button>
-        </form>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmReceiptModal">
+            <i class="bi bi-check-circle"></i> Confirmar Recepcion
+        </button>
         @endif
         <a href="{{ route('receipts.index') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Volver
@@ -141,4 +136,29 @@
         </div>
     </div>
 </div>
+@if(in_array($receipt->status, ['pending', 'with_discrepancies']))
+<div class="modal fade" id="confirmReceiptModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-check-circle text-success"></i> Confirmar Recepcion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Esta seguro de confirmar la recepcion <strong>{{ $receipt->folio }}</strong>?</p>
+                <p class="text-muted mb-0">Se crearan los lotes y movimientos de inventario correspondientes. <strong>Esta accion es irreversible.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form action="{{ route('receipts.confirm', $receipt) }}" method="POST" class="d-inline">
+                    @csrf @method('PATCH')
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Confirmar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection

@@ -18,20 +18,12 @@
     <div class="d-flex gap-2">
         @if($adjustment->status === 'draft')
             @if(auth()->user()->hasRole(['admin', 'warehouse_manager']) && $adjustment->performed_by !== auth()->id())
-            <form action="{{ route('adjustments.approve', $adjustment) }}" method="POST"
-                  onsubmit="return confirm('¿Aprobar este ajuste? Se actualizara el inventario con las cantidades fisicas registradas. Esta accion es irreversible.')">
-                @csrf @method('PATCH')
-                <button type="submit" class="btn btn-success">
-                    <i class="bi bi-check-circle"></i> Aprobar Ajuste
-                </button>
-            </form>
-            <form action="{{ route('adjustments.reject', $adjustment) }}" method="POST"
-                  onsubmit="return confirm('¿Rechazar este ajuste?')">
-                @csrf @method('PATCH')
-                <button type="submit" class="btn btn-outline-danger">
-                    <i class="bi bi-x-circle"></i> Rechazar
-                </button>
-            </form>
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveAdjustmentModal">
+                <i class="bi bi-check-circle"></i> Aprobar Ajuste
+            </button>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectAdjustmentModal">
+                <i class="bi bi-x-circle"></i> Rechazar
+            </button>
             @elseif($adjustment->performed_by === auth()->id())
             <div class="alert alert-info mb-0 py-2 px-3">
                 <i class="bi bi-info-circle"></i> No puedes aprobar tu propio ajuste.
@@ -152,4 +144,48 @@
         </div>
     </div>
 </div>
+@if($adjustment->status === 'draft' && auth()->user()->hasRole(['admin', 'warehouse_manager']) && $adjustment->performed_by !== auth()->id())
+<div class="modal fade" id="approveAdjustmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-check-circle text-success"></i> Aprobar Ajuste</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Aprobar el ajuste <strong>{{ $adjustment->folio }}</strong>?</p>
+                <p class="text-muted mb-0">Se actualizara el inventario con las cantidades fisicas registradas. <strong>Esta accion es irreversible.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form action="{{ route('adjustments.approve', $adjustment) }}" method="POST" class="d-inline">
+                    @csrf @method('PATCH')
+                    <button type="submit" class="btn btn-success"><i class="bi bi-check-circle"></i> Aprobar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="rejectAdjustmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-x-circle text-danger"></i> Rechazar Ajuste</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Rechazar el ajuste <strong>{{ $adjustment->folio }}</strong>?</p>
+                <p class="text-muted mb-0">El ajuste quedara marcado como rechazado y no se aplicaran cambios al inventario.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <form action="{{ route('adjustments.reject', $adjustment) }}" method="POST" class="d-inline">
+                    @csrf @method('PATCH')
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-x-circle"></i> Rechazar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection

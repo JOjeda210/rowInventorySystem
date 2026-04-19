@@ -23,20 +23,42 @@ class AlertService
         $today = Carbon::now()->startOfDay();
         $sevenDaysFromNow = Carbon::now()->addDays(7)->startOfDay();
 
-        // Buscar lotes proximos a vencer
-        $lotsToCheck = Lot::where(function ($query) {
-            $query->where('status', 'available')
-                  ->orWhere('status', 'expiring_soon');
-        })
+        // Lotes ya vencidos con stock disponible
+        $expiredLots = Lot::whereIn('status', ['available', 'expiring_soon'])
+            ->whereNotNull('expiry_date')
+            ->where('expiry_date', '<', $today)
+            ->where('current_qty', '>', 0)
+            ->get();
+
+        foreach ($expiredLots as $lot) {
+            $lot->update(['status' => 'expired', 'alert_level' => 'expired']);
+
+            $existingAlert = Alert::where('lot_id', $lot->id)
+                ->where('type', 'expired')
+                ->where('is_read', false)
+                ->exists();
+
+            if (!$existingAlert) {
+                Alert::create([
+                    'type' => 'expired',
+                    'product_id' => $lot->product_id,
+                    'lot_id' => $lot->id,
+                    'message' => "Lote {$lot->lot_number} ha vencido el {$lot->expiry_date}. Requiere revision inmediata.",
+                    'level' => 'critical',
+                    'is_read' => false,
+                ]);
+            }
+        }
+
+        // Lotes proximos a vencer (dentro de 7 dias)
+        $lotsToCheck = Lot::whereIn('status', ['available', 'expiring_soon'])
             ->whereNotNull('expiry_date')
             ->whereBetween('expiry_date', [$today, $sevenDaysFromNow])
             ->get();
 
         foreach ($lotsToCheck as $lot) {
-            $daysUntilExpiry = $today->diffInDays($lot->expiry_date, false);
-            $daysUntilExpiry = max($daysUntilExpiry, 0);
+            $daysUntilExpiry = (int) $today->diffInDays($lot->expiry_date, false);
 
-            // Determinar tipo y nivel de alerta
             if ($daysUntilExpiry <= 1) {
                 $alertType = 'expiry_1d';
                 $level = 'critical';
@@ -51,7 +73,6 @@ class AlertService
                 $alertLevel = 'warn_7d';
             }
 
-            // Verificar que no exista ya una alerta activa del mismo tipo para este lote
             $existingAlert = Alert::where('lot_id', $lot->id)
                 ->where('type', $alertType)
                 ->where('is_read', false)
@@ -62,13 +83,12 @@ class AlertService
                     'type' => $alertType,
                     'product_id' => $lot->product_id,
                     'lot_id' => $lot->id,
-                    'message' => "Lote {$lot->lot_number} del producto vence en {$daysUntilExpiry} dias.",
+                    'message' => "Lote {$lot->lot_number} vence en {$daysUntilExpiry} " . ($daysUntilExpiry === 1 ? 'dia' : 'dias') . '.',
                     'level' => $level,
                     'is_read' => false,
                 ]);
             }
 
-            // Actualizar el alert_level del lote
             $lot->update(['alert_level' => $alertLevel]);
         }
     }

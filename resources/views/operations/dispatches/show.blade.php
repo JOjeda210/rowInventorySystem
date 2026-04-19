@@ -17,24 +17,14 @@
     </div>
     <div class="d-flex gap-2">
         @if($dispatch->status === 'pending' && auth()->user()->hasRole(['admin', 'warehouse_manager', 'warehouse_clerk']))
-        <form action="{{ route('dispatches.fulfill', $dispatch) }}" method="POST"
-              onsubmit="return confirm('¿Surtir este despacho? Se actualizara el inventario y generaran movimientos. Esta accion es irreversible.')">
-            @csrf
-            @method('PATCH')
-            <button type="submit" class="btn btn-success">
-                <i class="bi bi-box-arrow-up"></i> Surtir Despacho
-            </button>
-        </form>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#fulfillDispatchModal">
+            <i class="bi bi-box-arrow-up"></i> Surtir Despacho
+        </button>
         @endif
-        @if(in_array($dispatch->status, ['pending']) && auth()->user()->hasRole(['admin', 'warehouse_manager', 'warehouse_clerk', 'production']))
-        <form action="{{ route('dispatches.cancel', $dispatch) }}" method="POST"
-              onsubmit="return confirm('¿Cancelar este despacho?')">
-            @csrf
-            @method('PATCH')
-            <button type="submit" class="btn btn-outline-danger">
-                <i class="bi bi-x-circle"></i> Cancelar
-            </button>
-        </form>
+        @if($dispatch->status === 'pending' && auth()->user()->hasRole(['admin', 'warehouse_manager', 'warehouse_clerk', 'production']))
+        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelDispatchModal">
+            <i class="bi bi-x-circle"></i> Cancelar
+        </button>
         @endif
         <a href="{{ route('dispatches.index') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Volver
@@ -147,4 +137,48 @@
         </div>
     </div>
 </div>
+@if($dispatch->status === 'pending')
+<div class="modal fade" id="fulfillDispatchModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-box-arrow-up text-success"></i> Surtir Despacho</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Confirmar el surtido del despacho <strong>{{ $dispatch->folio }}</strong>?</p>
+                <p class="text-muted mb-0">Se descontara el inventario por lote (FEFO) y se generaran los movimientos. <strong>Esta accion es irreversible.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form action="{{ route('dispatches.fulfill', $dispatch) }}" method="POST" class="d-inline">
+                    @csrf @method('PATCH')
+                    <button type="submit" class="btn btn-success"><i class="bi bi-box-arrow-up"></i> Surtir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="cancelDispatchModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-x-circle text-danger"></i> Cancelar Despacho</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Cancelar el despacho <strong>{{ $dispatch->folio }}</strong>?</p>
+                <p class="text-muted mb-0">El despacho quedara marcado como cancelado y no podra reactivarse.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <form action="{{ route('dispatches.cancel', $dispatch) }}" method="POST" class="d-inline">
+                    @csrf @method('PATCH')
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-x-circle"></i> Cancelar Despacho</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection
