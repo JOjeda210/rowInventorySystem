@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class CategoryStoreRequest extends FormRequest
 {
@@ -23,7 +24,7 @@ class CategoryStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:100', 'unique:categories,name,' . $this->route('category')?->id],
+            'name' => ['required', 'string', 'max:100', Rule::unique('categories', 'name')->ignore($this->route('category'))],
             'description' => ['nullable', 'string'],
             'is_perishable' => ['sometimes', 'boolean'],
         ];
