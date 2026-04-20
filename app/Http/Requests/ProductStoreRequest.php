@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ProductStoreRequest extends FormRequest
 {
@@ -23,12 +24,12 @@ class ProductStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['required', 'string', 'max:20', 'unique:products,code,' . $this->route('product')?->id],
+            'code' => ['required', 'string', 'max:20', Rule::unique('products', 'code')->ignore($this->route('product'))],
             'name' => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string'],
             'category_id' => ['required', 'string', 'exists:categories,id'],
             'unit_id' => ['required', 'string', 'exists:units_of_measure,id'],
-            'barcode' => ['nullable', 'string', 'max:50', 'unique:products,barcode,' . $this->route('product')?->id],
+            'barcode' => ['nullable', 'string', 'max:50', Rule::unique('products', 'barcode')->ignore($this->route('product'))],
             'min_stock' => ['required', 'numeric', 'min:0'],
             'max_stock' => ['nullable', 'numeric', 'gte:min_stock'],
             'location_id' => ['nullable', 'string', 'exists:locations,id'],
