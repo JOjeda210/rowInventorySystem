@@ -33,6 +33,7 @@ class Movement extends Model
         'quantity' => 'float',
         'qty_before' => 'float',
         'qty_after' => 'float',
+        'created_at' => 'datetime',
     ];
 
     // Relaciones
