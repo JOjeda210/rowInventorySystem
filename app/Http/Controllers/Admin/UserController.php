@@ -67,7 +67,7 @@ class UserController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
-        if ($user->id === auth()->id()) {
+        if ($user->getKey() === auth()->id()) {
             return redirect()->route('users.index')
                 ->with('error', 'No puedes eliminar tu propia cuenta.');
         }

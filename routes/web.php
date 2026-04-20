@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AlertController;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Catalog\CategoryController;
 use App\Http\Controllers\Catalog\LocationController;
 use App\Http\Controllers\Catalog\SupplierController;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 // Ruta raiz
 Route::get('/', function () {
-    return auth()->check()
+    return Auth::check()
         ? redirect()->route('dashboard')
         : redirect()->route('login');
 });

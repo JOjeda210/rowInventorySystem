@@ -54,6 +54,17 @@
                         </button>
                     </div>
                 </div>
+                <div class="px-3 pt-3 pb-2 border-bottom bg-light">
+                    <div class="input-group input-group-sm" style="max-width:380px">
+                        <span class="input-group-text" title="Escanea o escribe el codigo de barras del producto">
+                            <i class="bi bi-upc-scan"></i>
+                        </span>
+                        <input type="text" id="barcodeInput" class="form-control"
+                               placeholder="Escanea codigo de barras y presiona Enter..."
+                               autocomplete="off">
+                        <span class="input-group-text text-muted" id="barcodeStatus" style="min-width:140px;font-size:0.78rem;">Listo para escanear</span>
+                    </div>
+                </div>
                 <div class="card-body p-0">
                     <div id="linesContainer">
                         @if(old('lines'))
@@ -222,28 +233,90 @@
 </template>
 
 <script>
+// Mapa de productos indexado por barcode para lookup instantáneo del scanner
+const productsByBarcode = {
+    @foreach($products as $product)
+    @if($product->barcode)
+    {{ json_encode($product->barcode) }}: {
+        id: {{ json_encode($product->id) }},
+        name: {{ json_encode($product->name) }},
+        unit: {{ json_encode($product->unit->abbreviation) }},
+    },
+    @endif
+    @endforeach
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     let lineIndex = document.querySelectorAll('.receipt-line').length;
+    const template = document.getElementById('lineTemplate');
+    const container = document.getElementById('linesContainer');
 
-    document.getElementById('addLineBtn').addEventListener('click', function() {
-        const template = document.getElementById('lineTemplate');
-        const clone = template.content.cloneNode(true);
-        const html = clone.innerHTML.replaceAll('LINE_INDEX', lineIndex);
-        
+    function addLine(preselectedProductId = null) {
+        // FIX: usar template.innerHTML en lugar de content.cloneNode (DocumentFragment no tiene innerHTML)
+        const html = template.innerHTML.replaceAll('LINE_INDEX', lineIndex);
+        const placeholder = container.querySelector('.text-center.py-4');
+        if (placeholder) placeholder.remove();
+
         const div = document.createElement('div');
         div.innerHTML = html;
-        document.getElementById('linesContainer').appendChild(div.firstElementChild);
+        const line = div.firstElementChild;
+
+        if (preselectedProductId) {
+            const select = line.querySelector('.product-select');
+            if (select) select.value = preselectedProductId;
+        }
+
+        container.appendChild(line);
         lineIndex++;
+        return line;
+    }
+
+    document.getElementById('addLineBtn').addEventListener('click', function() {
+        const line = addLine();
+        line.querySelector('.product-select')?.focus();
     });
 
-    document.getElementById('linesContainer').addEventListener('click', function(e) {
+    container.addEventListener('click', function(e) {
         if (e.target.closest('.removeLineBtn')) {
             e.preventDefault();
             e.target.closest('.receipt-line').remove();
-            if (document.querySelectorAll('.receipt-line').length === 0) {
-                document.getElementById('linesContainer').innerHTML = '<div class="text-center py-4 text-muted"><p>No hay lineas. Agrega la primera haciendo clic en el boton.</p></div>';
+            if (container.querySelectorAll('.receipt-line').length === 0) {
+                container.innerHTML = '<div class="text-center py-4 text-muted"><p>No hay lineas. Agrega la primera haciendo clic en el boton.</p></div>';
             }
         }
+    });
+
+    // Lector de código de barras
+    const barcodeInput = document.getElementById('barcodeInput');
+    const barcodeStatus = document.getElementById('barcodeStatus');
+
+    barcodeInput.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+
+        const code = barcodeInput.value.trim();
+        if (!code) return;
+
+        const product = productsByBarcode[code];
+        if (!product) {
+            barcodeStatus.textContent = '✗ Producto no encontrado';
+            barcodeStatus.style.color = '#dc3545';
+            barcodeInput.select();
+            return;
+        }
+
+        const line = addLine(product.id);
+        barcodeStatus.textContent = '✓ ' + product.name;
+        barcodeStatus.style.color = '#198754';
+        barcodeInput.value = '';
+
+        // Foco en cantidad recibida para agilizar captura
+        line.querySelector('input[name*="received_qty"]')?.focus();
+
+        setTimeout(() => {
+            barcodeStatus.textContent = 'Listo para escanear';
+            barcodeStatus.style.color = '';
+        }, 2000);
     });
 
     document.getElementById('receiptForm').addEventListener('submit', function() {
