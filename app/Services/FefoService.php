@@ -22,7 +22,7 @@ class FefoService
         // Buscar lotes disponibles del producto ordenados por fecha de caducidad
         // null al final para lotes sin fecha de vencimiento
         $lots = Lot::where('product_id', $productId)
-            ->where('status', 'available')
+            ->whereIn('status', ['available', 'expiring_soon'])
             ->where('current_qty', '>', 0)
             ->orderByRaw('COALESCE(expiry_date, DATE \'2099-12-31\') ASC')
             ->get();

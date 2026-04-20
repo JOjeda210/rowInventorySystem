@@ -16,12 +16,13 @@ class Location extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'name',
         'code',
         'description',
         'type',
         'min_temp',
         'max_temp',
-        'max_capacity',
+        'capacity',
         'unit_id',
         'is_active',
     ];
@@ -30,7 +31,7 @@ class Location extends Model
         'is_active' => 'boolean',
         'min_temp' => 'float',
         'max_temp' => 'float',
-        'max_capacity' => 'float',
+        'capacity' => 'float',
     ];
 
     // Relaciones

@@ -64,4 +64,17 @@ class UserController extends Controller
         return redirect()->route('users.index')
             ->with('success', "Usuario {$status} exitosamente.");
     }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        if ($user->id === auth()->id()) {
+            return redirect()->route('users.index')
+                ->with('error', 'No puedes eliminar tu propia cuenta.');
+        }
+
+        $user->update(['is_active' => false]);
+
+        return redirect()->route('users.index')
+            ->with('success', 'Usuario desactivado exitosamente.');
+    }
 }

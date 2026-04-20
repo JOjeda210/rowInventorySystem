@@ -436,7 +436,7 @@
             <div class="nav-section-title">Monitoreo</div>
             <a href="{{ route('alerts.index') }}" class="nav-link {{ request()->routeIs('alerts.*') ? 'active' : '' }}">
                 <i class="bi bi-bell-fill"></i>
-                <span>Alertas <span class="badge bg-danger" id="alerts-badge" style="display: none;"></span></span>
+                <span>Alertas @if($unreadAlertCount > 0)<span class="badge bg-danger" id="alerts-badge">{{ $unreadAlertCount }}</span>@endif</span>
             </a>
         </div>
 
@@ -477,7 +477,7 @@
             <div class="topbar-right">
                 <a href="{{ route('alerts.index') }}" class="btn-icon" title="Alertas">
                     <i class="bi bi-bell"></i>
-                    <span class="badge bg-danger position-absolute" id="topbar-alerts-badge" style="display: none; top: 5px; right: 5px; font-size: 0.65rem;"></span>
+                    @if($unreadAlertCount > 0)<span class="badge bg-danger position-absolute" id="topbar-alerts-badge" style="top: 5px; right: 5px; font-size: 0.65rem;">{{ $unreadAlertCount }}</span>@endif
                 </a>
                 <div class="dropdown">
                     <button class="btn btn-link dropdown-toggle text-dark" type="button" data-bs-toggle="dropdown">
@@ -557,18 +557,19 @@
             localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
         });
 
-        // Inicializar DataTables
-        document.querySelectorAll('.simp-datatable').forEach(el => {
-            if (!$.fn.DataTable.isDataTable(el)) {
-                new DataTable(el, {
-                    language: {
-                        url: 'https://cdn.datatables.net/plug-ins/2.3.1/i18n/es-MX.json'
-                    },
-                    pageLength: 25,
-                    responsive: true,
-                    dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>><"row"<"col-sm-12"tr>><"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
-                });
-            }
+        // Inicializar DataTables (DataTables 2.x sin jQuery)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.simp-datatable').forEach(function(el) {
+                if (!DataTable.isDataTable(el)) {
+                    new DataTable(el, {
+                        language: {
+                            url: 'https://cdn.datatables.net/plug-ins/2.3.1/i18n/es-MX.json'
+                        },
+                        pageLength: 25,
+                        responsive: true
+                    });
+                }
+            });
         });
     </script>
 

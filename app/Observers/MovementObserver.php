@@ -21,22 +21,22 @@ class MovementObserver
     public function created(Movement $movement): void
     {
         DB::transaction(function () use ($movement) {
-            // Recuperar el producto relacionado
-            $product = Product::findOrFail($movement->product_id);
+            $product = Product::lockForUpdate()->findOrFail($movement->product_id);
 
-            // Determinar si el movimiento suma o resta stock
             $sumTypes = ['receipt', 'positive_adjustment', 'return'];
             $subtractTypes = ['dispatch', 'negative_adjustment', 'waste'];
 
             if (in_array($movement->type, $sumTypes)) {
-                // Sumar al stock
                 $product->increment('current_stock', $movement->quantity);
             } elseif (in_array($movement->type, $subtractTypes)) {
-                // Restar del stock
+                if ($product->current_stock < $movement->quantity) {
+                    throw new \InvalidArgumentException(
+                        "Stock insuficiente para el producto {$product->name}: disponible {$product->current_stock}, requerido {$movement->quantity}."
+                    );
+                }
                 $product->decrement('current_stock', $movement->quantity);
             }
 
-            // Generar alertas si corresponde
             $alertService = new AlertService();
             $alertService->checkLowStockAlerts();
         });

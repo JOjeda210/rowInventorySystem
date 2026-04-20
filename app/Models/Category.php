@@ -17,10 +17,12 @@ class Category extends Model
         'name',
         'description',
         'is_perishable',
+        'is_active',
     ];
 
     protected $casts = [
         'is_perishable' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     // Relaciones

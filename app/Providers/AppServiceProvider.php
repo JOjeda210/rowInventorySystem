@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\Movement;
 use App\Observers\MovementObserver;
+use App\View\Composers\AlertBadgeComposer;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Registrar observers
         Movement::observe(MovementObserver::class);
+        View::composer('layouts.app', AlertBadgeComposer::class);
     }
 }

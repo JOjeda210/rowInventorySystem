@@ -24,7 +24,7 @@ class UnitController extends Controller
     {
         UnitOfMeasure::create(request()->validate([
             'name' => ['required', 'string', 'max:50', 'unique:units_of_measure,name'],
-            'symbol' => ['required', 'string', 'max:10', 'unique:units_of_measure,symbol'],
+            'abbreviation' => ['required', 'string', 'max:10', 'unique:units_of_measure,abbreviation'],
         ]));
         return redirect()->route('units.index')
             ->with('success', 'Unidad de medida creada exitosamente.');
@@ -39,7 +39,7 @@ class UnitController extends Controller
     {
         $unit->update(request()->validate([
             'name' => ['required', 'string', 'max:50', 'unique:units_of_measure,name,' . $unit->id],
-            'symbol' => ['required', 'string', 'max:10', 'unique:units_of_measure,symbol,' . $unit->id],
+            'abbreviation' => ['required', 'string', 'max:10', 'unique:units_of_measure,abbreviation,' . $unit->id],
         ]));
         return redirect()->route('units.index')
             ->with('success', 'Unidad de medida actualizada exitosamente.');

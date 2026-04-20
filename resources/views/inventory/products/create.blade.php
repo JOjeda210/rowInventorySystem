@@ -13,20 +13,33 @@
                 <form action="{{ route('products.store') }}" method="POST">
                     @csrf
 
-                    <div class="mb-3">
-                        <label for="name" class="form-label">
-                            <i class="bi bi-box-seam"></i> Nombre del Producto
-                        </label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                               id="name" name="name" value="{{ old('name') }}" required>
-                        @error('name')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="name" class="form-label">
+                                <i class="bi bi-box-seam"></i> Nombre del Producto <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                   id="name" name="name" value="{{ old('name') }}" required>
+                            @error('name')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="code" class="form-label">
+                                <i class="bi bi-upc-scan"></i> Codigo <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control @error('code') is-invalid @enderror"
+                                   id="code" name="code" value="{{ old('code') }}" required maxlength="20"
+                                   placeholder="Ej: PROD-001">
+                            @error('code')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="category_id" class="form-label">
-                            <i class="bi bi-tag"></i> Categoria
+                            <i class="bi bi-tag"></i> Categoria <span class="text-danger">*</span>
                         </label>
                         <select class="form-select @error('category_id') is-invalid @enderror" id="category_id" name="category_id" required>
                             <option value="">Selecciona una categoria...</option>
@@ -99,30 +112,30 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="minimum_stock" class="form-label">Stock Minimo</label>
-                                <input type="number" class="form-control @error('minimum_stock') is-invalid @enderror" 
-                                       id="minimum_stock" name="minimum_stock" value="{{ old('minimum_stock', 0) }}" step="0.01" required>
-                                @error('minimum_stock')
+                                <label for="min_stock" class="form-label">Stock Minimo <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control @error('min_stock') is-invalid @enderror"
+                                       id="min_stock" name="min_stock" value="{{ old('min_stock', 0) }}" step="0.001" min="0" required>
+                                @error('min_stock')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="maximum_stock" class="form-label">Stock Maximo</label>
-                                <input type="number" class="form-control @error('maximum_stock') is-invalid @enderror" 
-                                       id="maximum_stock" name="maximum_stock" value="{{ old('maximum_stock', 1000) }}" step="0.01" required>
-                                @error('maximum_stock')
+                                <label for="max_stock" class="form-label">Stock Maximo</label>
+                                <input type="number" class="form-control @error('max_stock') is-invalid @enderror"
+                                       id="max_stock" name="max_stock" value="{{ old('max_stock') }}" step="0.001" min="0">
+                                @error('max_stock')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="current_stock" class="form-label">Stock Inicial</label>
-                                <input type="number" class="form-control @error('current_stock') is-invalid @enderror" 
-                                       id="current_stock" name="current_stock" value="{{ old('current_stock', 0) }}" step="0.01" required>
-                                @error('current_stock')
+                                <label for="shelf_life_days" class="form-label">Vida util (dias)</label>
+                                <input type="number" class="form-control @error('shelf_life_days') is-invalid @enderror"
+                                       id="shelf_life_days" name="shelf_life_days" value="{{ old('shelf_life_days') }}" min="1" step="1">
+                                @error('shelf_life_days')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>

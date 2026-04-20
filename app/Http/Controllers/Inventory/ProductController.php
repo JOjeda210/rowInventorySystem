@@ -97,7 +97,7 @@ class ProductController extends Controller
     public function availableLots(Product $product): JsonResponse
     {
         $lots = $product->lots()
-            ->where('status', 'available')
+            ->whereIn('status', ['available', 'expiring_soon'])
             ->where('current_qty', '>', 0)
             ->orderByRaw('COALESCE(expiry_date, DATE \'2099-12-31\') ASC')
             ->select('id', 'lot_number', 'expiry_date', 'current_qty')

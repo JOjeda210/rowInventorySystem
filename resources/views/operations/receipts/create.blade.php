@@ -33,12 +33,12 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="reference_number" class="form-label">
-                            <i class="bi bi-file-text"></i> Numero de Referencia (Factura, Remision)
+                        <label for="arrived_at" class="form-label">
+                            <i class="bi bi-calendar-event"></i> Fecha y Hora de Llegada <span class="text-danger">*</span>
                         </label>
-                        <input type="text" class="form-control @error('reference_number') is-invalid @enderror" 
-                               id="reference_number" name="reference_number" value="{{ old('reference_number') }}">
-                        @error('reference_number')
+                        <input type="datetime-local" class="form-control @error('arrived_at') is-invalid @enderror"
+                               id="arrived_at" name="arrived_at" value="{{ old('arrived_at', now()->format('Y-m-d\TH:i')) }}" required>
+                        @error('arrived_at')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
@@ -59,9 +59,9 @@
                         @if(old('lines'))
                             @foreach(old('lines') as $index => $line)
                             <div class="receipt-line p-3 border-bottom" data-index="{{ $index }}">
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Producto</label>
+                                <div class="row mb-2">
+                                    <div class="col-md-5">
+                                        <label class="form-label">Producto <span class="text-danger">*</span></label>
                                         <select class="form-select product-select" name="lines[{{ $index }}][product_id]" required>
                                             <option value="">Selecciona...</option>
                                             @foreach($products as $product)
@@ -72,11 +72,16 @@
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label">Cantidad</label>
-                                        <input type="number" class="form-control quantity-input" name="lines[{{ $index }}][quantity]" 
-                                               value="{{ old("lines.$index.quantity") }}" step="0.01" required>
+                                        <label class="form-label">Cant. Recibida <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" name="lines[{{ $index }}][received_qty]"
+                                               value="{{ old("lines.$index.received_qty") }}" step="0.001" min="0.001" required>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Cant. Esperada</label>
+                                        <input type="number" class="form-control" name="lines[{{ $index }}][expected_qty]"
+                                               value="{{ old("lines.$index.expected_qty") }}" step="0.001" min="0">
+                                    </div>
+                                    <div class="col-md-1">
                                         <label class="form-label">&nbsp;</label>
                                         <button type="button" class="btn btn-danger btn-sm w-100 removeLineBtn">
                                             <i class="bi bi-trash"></i>
@@ -84,15 +89,31 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
+                                        <label class="form-label">No. de Lote <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="lines[{{ $index }}][lot_number]"
+                                               value="{{ old("lines.$index.lot_number") }}" required>
+                                    </div>
+                                    <div class="col-md-3">
                                         <label class="form-label">Fecha de Vencimiento</label>
-                                        <input type="date" class="form-control" name="lines[{{ $index }}][expiry_date]" 
+                                        <input type="date" class="form-control expiry-date-input" name="lines[{{ $index }}][expiry_date]"
                                                value="{{ old("lines.$index.expiry_date") }}">
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Numero de Lote</label>
-                                        <input type="text" class="form-control" name="lines[{{ $index }}][lot_number]" 
-                                               value="{{ old("lines.$index.lot_number") }}">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Costo Unitario</label>
+                                        <input type="number" class="form-control" name="lines[{{ $index }}][unit_cost]"
+                                               value="{{ old("lines.$index.unit_cost") }}" step="0.01" min="0">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Ubicacion</label>
+                                        <select class="form-select" name="lines[{{ $index }}][location_id]">
+                                            <option value="">Sin asignar</option>
+                                            @foreach($locations as $location)
+                                            <option value="{{ $location->id }}" @selected(old("lines.$index.location_id") == $location->id)>
+                                                {{ $location->name }} ({{ $location->code }})
+                                            </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -107,8 +128,9 @@
             </div>
 
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-circle"></i> Crear Recepcion
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="spinner-border spinner-border-sm d-none me-1" id="submitSpinner"></span>
+                    <i class="bi bi-check-circle" id="submitIcon"></i> Crear Recepcion
                 </button>
                 <a href="{{ route('receipts.index') }}" class="btn btn-outline-secondary">
                     <i class="bi bi-x-circle"></i> Cancelar
@@ -141,9 +163,9 @@
 
 <template id="lineTemplate">
     <div class="receipt-line p-3 border-bottom" data-index="LINE_INDEX">
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">Producto</label>
+        <div class="row mb-2">
+            <div class="col-md-5">
+                <label class="form-label">Producto <span class="text-danger">*</span></label>
                 <select class="form-select product-select" name="lines[LINE_INDEX][product_id]" required>
                     <option value="">Selecciona...</option>
                     @foreach($products as $product)
@@ -154,10 +176,14 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <label class="form-label">Cantidad</label>
-                <input type="number" class="form-control quantity-input" name="lines[LINE_INDEX][quantity]" step="0.01" required>
+                <label class="form-label">Cant. Recibida <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="lines[LINE_INDEX][received_qty]" step="0.001" min="0.001" required>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
+                <label class="form-label">Cant. Esperada</label>
+                <input type="number" class="form-control" name="lines[LINE_INDEX][expected_qty]" step="0.001" min="0">
+            </div>
+            <div class="col-md-1">
                 <label class="form-label">&nbsp;</label>
                 <button type="button" class="btn btn-danger btn-sm w-100 removeLineBtn">
                     <i class="bi bi-trash"></i>
@@ -165,13 +191,31 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6">
-                <label class="form-label">Fecha de Vencimiento</label>
-                <input type="date" class="form-control" name="lines[LINE_INDEX][expiry_date]">
+            <div class="col-md-3">
+                <label class="form-label">No. de Lote <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="lines[LINE_INDEX][lot_number]" required>
             </div>
-            <div class="col-md-6">
-                <label class="form-label">Numero de Lote</label>
-                <input type="text" class="form-control" name="lines[LINE_INDEX][lot_number]">
+            <div class="col-md-3">
+                <label class="form-label">Fecha de Vencimiento</label>
+                <input type="date" class="form-control expiry-date-input" name="lines[LINE_INDEX][expiry_date]">
+                <div class="expiry-warning text-danger small mt-1" style="display:none">
+                    <i class="bi bi-exclamation-triangle"></i> Fecha ya vencida. Confirme si desea continuar.
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Costo Unitario</label>
+                <input type="number" class="form-control" name="lines[LINE_INDEX][unit_cost]" step="0.01" min="0">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Ubicacion</label>
+                <select class="form-select" name="lines[LINE_INDEX][location_id]">
+                    <option value="">Sin asignar</option>
+                    @foreach($locations as $location)
+                    <option value="{{ $location->id }}">
+                        {{ $location->name }} ({{ $location->code }})
+                    </option>
+                    @endforeach
+                </select>
             </div>
         </div>
     </div>
@@ -200,6 +244,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('linesContainer').innerHTML = '<div class="text-center py-4 text-muted"><p>No hay lineas. Agrega la primera haciendo clic en el boton.</p></div>';
             }
         }
+    });
+
+    document.getElementById('receiptForm').addEventListener('submit', function() {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        document.getElementById('submitSpinner').classList.remove('d-none');
+        document.getElementById('submitIcon').classList.add('d-none');
     });
 });
 </script>
